@@ -12,7 +12,6 @@ parser = argparse.ArgumentParser()
 parser.add_argument("inputDir", help = "The directory containing textgrids you want to clean")
 parser.add_argument("outputDir", help = "THe directory in which to write the cleaned textgrids")
 args = parser.parse_args()
-head = os.path.dirname(os.getcwd())
 
 ## remove punctation from a word if there is any
 def strip_punct(word):
@@ -56,4 +55,4 @@ for root, dirs, files in os.walk(args.inputDir):
 					tg.append(wt)
 					print("Saving as: {}".format(os.path.join(args.outputDir, directory, file)))
 					tg.write(os.path.join(args.outputDir, directory file))
-	print("Done!")
+print("Done!")
