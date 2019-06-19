@@ -30,7 +30,8 @@ for root, dirs, files in os.walk(args.inputDir):
                 # ignore non-transcript tiers
                 if re.search('(transcript.*)', tier) is None:
                     continue
-                # make list of 'transcript' tiers
+
+                # make list of 'transcript' tiers & iterate through them
                 transcriptTiers = re.findall('(transcript.*)', tier)
                 for item in transcriptTiers:
                     pos = tg.getNames().index(item)
@@ -39,6 +40,8 @@ for root, dirs, files in os.walk(args.inputDir):
                     # and cleaned intervals
                     wt = textgrid.IntervalTier(name = item)
                     tr = tg.getList(item)[0]
+
+                    # remove original tier from TextGrid tier list
                     tg.tiers.pop(pos)
 
                     for interval in tr:
@@ -48,8 +51,7 @@ for root, dirs, files in os.walk(args.inputDir):
                         except Exception as e:
                             print(name, e)
 
-                    # Remove the original tier and replace
-                    # with the punctuation-less version
+                    # add new tier to list
                     tg.append(wt)
             # save textgrid
             tg.write(os.path.join(os.path.join(root, name)))
