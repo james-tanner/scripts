@@ -6,8 +6,6 @@ import os
 import re
 import csv
 import argparse
-import pandas as pd
-from collections import defaultdict
 
 parser = argparse.ArgumentParser()
 parser.add_argument("inputDir", help = "The directory of the .words files")
@@ -16,7 +14,9 @@ args = parser.parse_args()
 
 d = []
 
-vowels = ["aa", "ae", "ay", "aw", "ao", "oy", "ow", "eh", "ey", "er", "ah", "uw", "ih", "iy", "uh", "aan", "aen", "ayn", "awn", "aon", "oyn", "own", "ehn", "eyn", "ern", "ahn", "uwn", "ihn", "iyn", "uhn"]
+vowels = ["aa", "ae", "ay", "aw", "ao", "oy", "ow", "eh", "ey", "er", "ah", "uw", "ih",
+		"iy", "uh", "aan", "aen", "ayn", "awn", "aon", "oyn", "own", "ehn", "eyn", "ern",
+		"ahn", "uwn", "ihn", "iyn", "uhn"]
 obstruents = ["p", "t", "k", "b", "d", "g", "f", "v", "s", "z", "th", "dh", "ch", "zh"]
 
 def parse_words(file):
@@ -84,7 +84,7 @@ for root, dirs, files in os.walk(args.inputDir):
 filename = os.path.join(args.outputDir, "buckeye_obstruents.csv")
 print("Writing to {}".format(filename))
 
-# write the dictionary to a csv
+# write list of dictionaries as a csv
 with open(filename, "w") as csvfile:
 	writer = csv.writer(csvfile)
 	writer.writerow(["Word", "ContainsVowelObstruent"])
