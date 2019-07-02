@@ -89,7 +89,7 @@ with open(filename, "w") as csvfile:
 	writer = csv.writer(csvfile)
 	writer.writerow(["Word", "ContainsVowelObstruent"])
 	for line in d:
-		for key, value in line.iteritems():
+		for key, value in line.items():
 			writer.writerow([key, value])
 
 print("Done!")
