@@ -28,7 +28,7 @@ for index, row in data.iterrows():
 	## and replace with anonymised speaker ID
 	for tier in tg:
 		if re.match(row["tier_name"], tier.name):
-			tier.name = re.sub(row["tier_name"], row["Speaker ID"], tier.name)
+			tier.name = re.sub(row["tier_name"], row["Speaker ID"].strip(), tier.name)
 
 	## overwrite the original TextGrid
 	tg.write(os.path.join(args.inputDir, row["File name"] + ".TextGrid"))
