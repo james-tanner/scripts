@@ -22,7 +22,8 @@ for index, row in data.iterrows():
 
 	## read TextGrid
 	tg = textgrid.TextGrid()
-	tg.read(os.path.join(args.inputDir, row["File name"] + ".TextGrid"))
+	tg.read(os.path.join(args.inputDir, row["File name"] + ".TextGrid"),
+		round_digits = 6)
 
 	## find the tier names that contain the original name
 	## and replace with anonymised speaker ID
