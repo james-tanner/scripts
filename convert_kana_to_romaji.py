@@ -3,14 +3,18 @@
 ## July 2019
 
 import os
+import re
 import textgrid
-import webvtt
 import argparse
 import pykakasi
 
 parser = argparse.ArgumentParser()
+parser.add_argument("kana_tier",
+	help = "The name of the tier containing the kana/kanji transcription")
 parser.add_argument("inputDir",
 	help = "The directory containing textgrids to be converted")
+parser.add_argument("outputDir",
+	help = "The directory to place the converted textgrids")
 args = parser.parse_args()
 
 # see kanji converter
@@ -26,7 +30,7 @@ conv = kakasi.getConverter()
 for root, dirs, files in os.walk(args.inputDir):
 	for name in files:
 		if name.endswith(".TextGrid"):
-			print("Processing {}".format(name))
+			print("Processing {}".format(name), end = "...")
 
 			## read textgrid
 			tg = textgrid.TextGrid()
@@ -34,27 +38,29 @@ for root, dirs, files in os.walk(args.inputDir):
 
 			# assume that Y-t-P outputs a single
 			# utterance-level tier
-			for kanjiTier in tg:
+			for Tier in tg:
+				if Tier.name == args.kana_tier:
 
-				romajiTier = textgrid.IntervalTier(
-					name = "romaji")
+					romajiTier = textgrid.IntervalTier(
+						name = os.path.splitext(name)[0])
 
-				# convert kanji to romaji
-				for interval in kanjiTier.intervals:
+					# convert kanji to romaji
+					for interval in Tier.intervals:
 
-					romajiInt = textgrid.Interval(
-						minTime = interval.minTime,
-						maxTime = interval.maxTime,
-						mark = conv.do(interval.mark))
+						if interval.mark == "#":
+							continue
+						else:
+							romajiInt = textgrid.Interval(
+								minTime = interval.minTime,
+								maxTime = interval.maxTime,
+								mark = conv.do(interval.mark))
 
-					romajiTier.addInterval(romajiInt)
+						romajiTier.addInterval(romajiInt)
 
-			# remove the kana/kanji tier
-			# as it creates problems for the MFA
-			for i, tier in enumerate(tg.tiers):
-				if tier.name != "romaji":
-					tg.pop(i)
-			tg.append(romajiTier)
+			# create an empty TextGrid object to write romaji tier to
+			NewTg = textgrid.TextGrid()
+			NewTg.append(romajiTier)
 
-			tg.write(os.path.join(root, name))
+			print("saving to {}".format(os.path.join(args.outputDir, name)))
+			NewTg.write(os.path.join(args.outputDir, name))
 print("Done")
