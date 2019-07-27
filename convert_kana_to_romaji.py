@@ -13,6 +13,9 @@ parser.add_argument("inputDir",
 	help = "The directory containing textgrids to be converted")
 parser.add_argument("outputDir",
 	help = "The directory to place the converted textgrids")
+parser.add_argument("--speaker_as_dir",
+	help = "Use the name of the directory as the tier name; else uses filename (default: False)",
+	action = 'store_true')
 parser.add_argument("--kana_tier",
 	help = "The name of the tier containing the kana/kanji transcription")
 args = parser.parse_args()
@@ -44,8 +47,12 @@ for root, dirs, files in os.walk(args.inputDir):
 
 				if Tier.name == args.kana_tier:
 
-					romajiTier = textgrid.IntervalTier(
-						name = os.path.splitext(name)[0])
+					romajiTier = textgrid.IntervalTier()
+					if args.speaker_as_dir:
+						path = os.path.basename(os.path.dirname(os.path.join(root, name)))
+						romajiTier.name = path
+					else:
+						romajiTier.name = os.path.splitext(name)[0]
 
 					# convert kanji to romaji
 					for interval in Tier.intervals:
