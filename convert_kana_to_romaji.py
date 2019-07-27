@@ -9,12 +9,12 @@ import argparse
 import pykakasi
 
 parser = argparse.ArgumentParser()
-parser.add_argument("kana_tier",
-	help = "The name of the tier containing the kana/kanji transcription")
 parser.add_argument("inputDir",
 	help = "The directory containing textgrids to be converted")
 parser.add_argument("outputDir",
 	help = "The directory to place the converted textgrids")
+parser.add_argument("--kana_tier",
+	help = "The name of the tier containing the kana/kanji transcription")
 args = parser.parse_args()
 
 # see kanji converter
@@ -36,9 +36,12 @@ for root, dirs, files in os.walk(args.inputDir):
 			tg = textgrid.TextGrid()
 			tg.read(os.path.join(root, name))
 
-			# assume that Y-t-P outputs a single
-			# utterance-level tier
+			# search textgrid for a tier with a specific name
+			# if no name specified, look at the first tier
 			for Tier in tg:
+				if args.kana_tier is None:
+					args.kana_tier = tg.getNames()[0]
+
 				if Tier.name == args.kana_tier:
 
 					romajiTier = textgrid.IntervalTier(
@@ -47,8 +50,12 @@ for root, dirs, files in os.walk(args.inputDir):
 					# convert kanji to romaji
 					for interval in Tier.intervals:
 
+						# skip intervals with dummy silence
 						if interval.mark == "#":
 							continue
+
+						# take interval information from original
+						# and apply convertor to the interval name
 						else:
 							romajiInt = textgrid.Interval(
 								minTime = interval.minTime,
@@ -58,9 +65,11 @@ for root, dirs, files in os.walk(args.inputDir):
 						romajiTier.addInterval(romajiInt)
 
 			# create an empty TextGrid object to write romaji tier to
-			NewTg = textgrid.TextGrid()
-			NewTg.append(romajiTier)
+			newTg = textgrid.TextGrid()
+			newTg.append(romajiTier)
 
+			# write textgrid to file
 			print("saving to {}".format(os.path.join(args.outputDir, name)))
-			NewTg.write(os.path.join(args.outputDir, name))
+			newTg.write(os.path.join(args.outputDir, name))
+
 print("Done")
