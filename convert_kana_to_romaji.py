@@ -13,7 +13,7 @@ parser.add_argument("inputDir",
 	help = "The directory containing textgrids to be converted")
 parser.add_argument("outputDir",
 	help = "The directory to place the converted textgrids")
-parser.add_argument("--speaker_as_dir",
+parser.add_argument("--speaker_name",
 	help = "Use the name of the directory as the tier name; else uses filename (default: False)",
 	action = 'store_true')
 parser.add_argument("--kana_tier",
@@ -48,7 +48,7 @@ for root, dirs, files in os.walk(args.inputDir):
 				if Tier.name == args.kana_tier:
 
 					romajiTier = textgrid.IntervalTier()
-					if args.speaker_as_dir:
+					if args.speaker_name:
 						path = os.path.basename(os.path.dirname(os.path.join(root, name)))
 						romajiTier.name = path
 					else:
