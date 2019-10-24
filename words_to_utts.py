@@ -9,6 +9,8 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument('inputDir', help = "Path to the TextGrid directory")
 parser.add_argument('outputDir', help = "Path for the TextGrid output")
+parser.add_argument('separator', help = "Word/phrase/segment to split utterances",
+	action = 'store', type = str)
 args = parser.parse_args()
 
 # iterate through the files in the directory:
@@ -16,7 +18,7 @@ for root, dirs, files in os.walk(args.inputDir):
 	for name in files:
 		# for the purposes of testing,
 		# just match the one file
-		if name == "word_extract_current.TextGrid":
+		if name.endswith(".TextGrid"):
 			print("Processing {}".format(name))
 
 			tg = textgrid.TextGrid()
@@ -37,7 +39,7 @@ for root, dirs, files in os.walk(args.inputDir):
 				for interval in tier.intervals:
 
 					# add non-silence to a word list
-					if interval.mark != "!SIL":
+					if interval.mark != args.separator:
 						wordList.append(interval.mark)
 						intList.append(interval)
 
