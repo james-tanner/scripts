@@ -7,7 +7,6 @@ import pandas as pd
 import argparse
 import re
 import shutil
-import glob
 
 parser = argparse.ArgumentParser()
 parser.add_argument("inputCSV", help = "Path to the CSV containing speaker and file names")
@@ -36,7 +35,6 @@ for speaker in data.speaker_id.unique():
 			# remove file extension (in order to copy both WAV and TextGrid)
 			filename = os.path.splitext(row['filename'])[0]
 			
-
 			# check if the speaker directory exists
 			if not os.path.isdir(os.path.join(args.outputDir, speaker)):
 				print("Making directory for {}".format(speaker))
