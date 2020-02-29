@@ -13,6 +13,7 @@ parser.add_argument('inputFiles', help = "Directory of the textgrids")
 parser.add_argument('outputFiles', help = "Directory for where to write textgrids to")
 args = parser.parse_args()
 
+# loop through fiels
 for root, dirs, files in os.walk(args.inputFiles):
 	for name in files:
 		if name.endswith(".TextGrid"):
@@ -22,6 +23,8 @@ for root, dirs, files in os.walk(args.inputFiles):
 			tg.read(os.path.join(args.inputFiles, name))
 
 			for tier in tg:
+				# remove underscores
 				tier.name = re.sub("(.*)_(.*)", "\\1\\2", tier.name)
 
+	# write
 	tg.write(os.path.join(args.outputFiles, name))
