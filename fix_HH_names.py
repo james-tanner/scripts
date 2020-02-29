@@ -26,5 +26,5 @@ for root, dirs, files in os.walk(args.inputFiles):
 				# remove underscores
 				tier.name = re.sub("(.*)_(.*)", "\\1\\2", tier.name)
 
-	# write
-	tg.write(os.path.join(args.outputFiles, name))
+			# write
+			tg.write(os.path.join(args.outputFiles, name))
