@@ -28,7 +28,7 @@ for index, row in data.iterrows():
 	# don't have access to all of the files
 	# so only open the ones that can be found
 	try:
-		tg.read(os.path.join(args.inputDir, filename + ".TextGrid"))
+		tg.read(os.path.join(args.inputDir, filename + ".textgrid"))
 
 		## find and replace A or B with tier name
 		for tier in tg:
@@ -40,7 +40,7 @@ for index, row in data.iterrows():
 				print(tier.name)
 
 		# overwrite original textgrid
-		tg.write(os.path.join(args.inputDir, filename + ".TextGrid"))
+		tg.write(os.path.join(args.inputDir, filename + ".textgrid"))
 
 	except:
-		print("No TextGrid called {}: skipping".format(filename))
+		print("No TextGrid called {}: skipping".format(filename + ".textgrid"))
