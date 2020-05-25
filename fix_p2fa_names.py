@@ -22,8 +22,7 @@ for root, dirs, files in os.walk(args.inputDir):
 			tg.read(os.path.join(args.inputDir, name))
 
 			## extract speaker from file name
-			speaker = re.search("(.*)\_.*\.TextGrid", name).groups(1)[0]
-			
+			speaker = re.search("(.*)\.TextGrid", name).groups(1)[0]
 			## convert tiers to have the speaker name
 			## followed by either 'phones' or 'words'
 			for t in tg.tiers:
@@ -34,5 +33,5 @@ for root, dirs, files in os.walk(args.inputDir):
 				else:
 					continue
 
-			tg.write(os.path.join(args.outputDir, speaker + ".TextGrid"))
+			tg.write(os.path.join(args.outputDir, name))
 
