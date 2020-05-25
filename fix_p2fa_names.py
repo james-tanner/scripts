@@ -13,7 +13,6 @@ parser.add_argument('outputDir', help = "Path to TextGrid output directory")
 args = parser.parse_args()
 
 ## start iterating through files in the input directory
-
 for root, dirs, files in os.walk(args.inputDir):
 	for name in files:
 		if name.endswith(".TextGrid"):
@@ -22,9 +21,11 @@ for root, dirs, files in os.walk(args.inputDir):
 			tg = textgrid.TextGrid()
 			tg.read(os.path.join(args.inputDir, name))
 
-			## extract speaker name
-			speaker = re.search("(.*)\.TextGrid", name).groups(1)[0]
+			## extract speaker from file name
+			speaker = re.search("(.*)\_.*\.TextGrid", name).groups(1)[0]
 			
+			## convert tiers to have the speaker name
+			## followed by either 'phones' or 'words'
 			for t in tg.tiers:
 				if speaker in t.name:
 					t.name = speaker + " - words"
@@ -33,5 +34,5 @@ for root, dirs, files in os.walk(args.inputDir):
 				else:
 					continue
 
-			tg.write(os.path.join(args.outputDir, name))
+			tg.write(os.path.join(args.outputDir, speaker + ".TextGrid"))
 
