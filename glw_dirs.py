@@ -49,7 +49,7 @@ for index, row in df.iterrows():
 
 	## save textgrid to the new directory
 	## and copy the audio file
-	tg_new.write(os.path.join(outPath, row['file'] + row['speaker'] + ".TextGrid"))
-	shutil.copy(os.path.join(args.inputCSV, row['file'] + ".wav"), os.path.join(outPath, row['file'] + row['speaker'] + ".wav"))
+	tg_new.write(os.path.join(outPath, row['file'] + "_" + row['speaker'] + ".TextGrid"))
+	shutil.copy(os.path.join(args.inputCSV, row['file'] + ".wav"), os.path.join(outPath, row['file'] + "_" + row['speaker'] + ".wav"))
 
 print("Done!")
