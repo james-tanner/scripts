@@ -14,43 +14,27 @@ parser.add_argument("inputFiles", help = "Path to the files to be copied")
 parser.add_argument("outputDir", help = "Path to the directory for speaker directories to be made")
 parser.add_argument("--speaker_id", help = "Name of speaker ID column (default = 'speaker_id')", default = "speaker_id")
 parser.add_argument("--file", help = "Name of filename column (default = 'file')", default = "file")
-parser.add_argument("--region", help  = "Name of the region column (default = 'region')", default = "region")
 args = parser.parse_args()
 
 # import CSV
 data = pd.read_csv(args.inputCSV)
 
-speaker_id = args.speaker_id
 # iterate through speaker names:
-for speaker in data.speaker_id.unique():
-	# print("Making speaker directories for {}".format(speaker))
-
+for speaker in data[str(args.speaker_id)].unique():
 	# filter dataframe to match speakers
-	temp = data[data.speaker_id == speaker]
+	temp = data[data[str(args.speaker_id)] == speaker]
 
 	# speaker IDs are numbers to coerce to string
 	speaker = str(speaker)
 
 	for index, row in temp.iterrows():
-
-		# checking that the file is in the input directory
-		if os.path.isfile(os.path.join(args.inputFiles, row[args.file])):
-
-			# check if a folder with that region name exists
-			region = row[args.region]
-			if not os.path.isdir(os.path.join(args.outputDir, region)):
-				print("Making '{}' directory".format(region))
-				os.mkdir(os.path.join(args.outputDir, region))
-
-			# remove file extension (in order to copy both WAV and TextGrid)
-			filename = os.path.splitext(row[args.file])[0]
+			if os.path.isfile(os.path.join(args.inputFiles, row[args.file] + ".wav")):
 			
-			# check if the speaker directory exists
-			if not os.path.isdir(os.path.join(args.outputDir, region, speaker)):
-				print("Making directory for {}".format(speaker))
-				os.mkdir(os.path.join(args.outputDir, region, speaker))
-
-			# copy files
-			shutil.copy(os.path.join(args.inputFiles, filename + ".wav"), os.path.join(args.outputDir, region, speaker))
-			shutil.copy(os.path.join(args.inputFiles, filename + ".TextGrid"), os.path.join(args.outputDir, region, speaker))
+				if not os.path.isdir(os.path.join(args.outputDir, speaker)):
+					print("Making directory for {}".format(speaker))
+					os.mkdir(os.path.join(args.outputDir, speaker))
+				# copy files
+				filename = row[args.file]
+				shutil.copy(os.path.join(args.inputFiles, filename + ".wav"), os.path.join(args.outputDir, speaker))
+				shutil.copy(os.path.join(args.inputFiles, filename + ".TextGrid"), os.path.join(args.outputDir, speaker))
 print("Done!")
