@@ -37,6 +37,6 @@ with open(args.output_path, "w") as f:
         gender = "female" if gender_abbrev == "f" else "male"
         dialect = dialect_dict[dialect_abbrev]
 
-        f.write(",".join([spk, dialect, gender]) + "\n")
+        f.write(",".join([speaker, dialect, gender]) + "\n")
 
 print("Done!")
