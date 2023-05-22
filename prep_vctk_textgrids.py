@@ -17,27 +17,30 @@ def make_tgs(speaker_dir):
     text_files = speaker_dir.glob("*")
 
     for text in text_files:
-        ## first make the dir if it isn't exist
-        args.outputdir.joinpath(speaker_dir.stem).mkdir(parents=True, exist_ok=True)
+        try:
+            ## first make the dir if it isn't exist
+            args.outputdir.joinpath(speaker_dir.stem).mkdir(parents=True, exist_ok=True)
 
-        ## first get the wav file duration
-        wav_fname = str(args.wavdir.joinpath(speaker_dir.stem).joinpath(text.stem)) + ".wav"
-        audio, sr = librosa.load(
-        args.inputdir.joinpath(wav_fname),
-        sr=None)
-        audio_dur = librosa.get_duration(y=audio, sr=sr)
+            ## first get the wav file duration
+            wav_fname = str(args.wavdir.joinpath(speaker_dir.stem).joinpath(text.stem)) + ".wav"
+            audio, sr = librosa.load(
+            args.inputdir.joinpath(wav_fname),
+            sr=None)
+            audio_dur = librosa.get_duration(y=audio, sr=sr)
 
-        ## make the textgrid from the text
-        with open(text, "r") as f:
-            t = f.read()
+            ## make the textgrid from the text
+            with open(text, "r") as f:
+                t = f.read().strip("\n")
 
-        tg = textgrid.TextGrid()
-        tier = textgrid.IntervalTier(name=text.stem)
-        tier.add(minTime=0, maxTime=audio_dur, mark=t)
-        tg.append(tier)
+            tg = textgrid.TextGrid()
+            tier = textgrid.IntervalTier(name=speaker_dir.stem)
+            tier.add(minTime=0, maxTime=audio_dur, mark=t)
+            tg.append(tier)
 
-        tg_name = text.stem + ".TextGrid"
-        tg.write(args.outputdir.joinpath(speaker_dir.stem).joinpath(tg_name))
+            tg_name = text.stem + ".TextGrid"
+            tg.write(args.outputdir.joinpath(speaker_dir.stem).joinpath(tg_name))
+        except:
+            pass
 
 
 if __name__ == "__main__":
