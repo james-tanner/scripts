@@ -9,34 +9,44 @@ def get_input(fname):
         out = json.load(jsonout)
     return out
 
-def whisper2textgrid(input_name):
+def get_text_name(input_name):
+    return "text" if "text" in input_name['segments'][0]['words'][0] else "word"
+
+def make_interval(start, end, text):
+    interval = Interval(
+        minTime = start,
+        maxTime = end,
+        mark = text
+        )
+    return interval
+
+
+def whisper2textgrid(input_name, verbose):
 
     ## read the JSON input file
-    json_input = get_input(input_name)
+    inp = get_input(input_name)
 
     ## create a new empty TextGrid and interval tier
     tg = TextGrid()
     tier = IntervalTier(name = "phones")
 
-    tname = "text" if "text" in json_input['segments'][0]['words'][0] else "word"
+    tname = get_text_name(inp)
 
     ## go through each of the utterance sections
-    for utterance in json_input['segments']:
+    for utterance in inp['segments']:
         ## write each word as a new interval
         ## based on the whisper output
         for word in utterance['words']:
-            print(word['start'], word['end'], word[tname])
-            interval = Interval(
-                minTime = word['start'],
-                maxTime = word['end'],
-                mark = word[tname]
-            )
+            if verbose:
+                print(word['start'], word['end'], word[tname])
+
+            interval = make_interval(word['start'], word['end'], word[tname])
+
             tier.addInterval(interval)
 
     ## add the tier to the
     ## TextGrid and write out
     tg.append(tier)
-    print(tg.tiers)
 
     return tg
 
@@ -44,9 +54,10 @@ if __name__ == "__main__":
     parser = ArgumentParser()
     parser.add_argument("input", type = Path)
     parser.add_argument("output", type = Path)
+    parser.add_argument("--verbose", "-v", action = "store_true")
     args = parser.parse_args()
 
     input_name = args.input.stem
-    tg_out = whisper2textgrid(args.input)
+    tg_out = whisper2textgrid(args.input, args.verbose)
 
     tg_out.write(args.output.joinpath(input_name + ".TextGrid"))
