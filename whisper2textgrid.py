@@ -11,6 +11,8 @@ def get_input(fname):
 
 
 def get_text_name(input_name):
+    ## determine if whisper text label is
+    ## either 'text' or 'word'
     return "text" if "text" in input_name['segments'][0]['words'][0] else "word"
 
 
@@ -32,6 +34,7 @@ def whisper2textgrid(input_name, verbose):
     tg = TextGrid()
     tier = IntervalTier(name = "phones")
 
+    ## get the name of the text label
     tname = get_text_name(inp)
 
     ## go through each of the utterance sections
@@ -61,12 +64,17 @@ if __name__ == "__main__":
     parser.add_argument("--verbose", "-v", action = "store_true")
     args = parser.parse_args()
 
+    ## check if the input is a single JSON file
+    ## or a directory of JSON files
     if args.input.is_file():
         tg_out = whisper2textgrid(args.input, args.verbose)
         tg_out.write(args.output.joinpath(args.input.stem + ".TextGrid"))
+
+    ## if directory, iterate through JSON files
     elif args.input.is_dir():
         inputs = list(args.input.glob("*.json"))
         for inp in inputs:
+            print(f"Converting {inp.stem}")
             tg_out = whisper2textgrid(inp, args.verbose)
             tg_out.write(args.output.joinpath(inp.stem + ".TextGrid"))
     else:
