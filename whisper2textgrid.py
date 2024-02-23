@@ -25,30 +25,32 @@ def make_interval(start, end, text):
     return interval
 
 
-def whisper2textgrid(input_name, verbose):
-
-    ## read the JSON input file
-    inp = get_input(input_name)
+def whisper2textgrid(input_name, words = False, verbose = False):
 
     ## create a new empty TextGrid and interval tier
     tg = TextGrid()
     tier = IntervalTier(name = "phones")
 
     ## get the name of the text label
-    tname = get_text_name(inp)
+    tname = get_text_name(input_name)
 
     ## go through each of the utterance sections
-    for utterance in inp['segments']:
+    for utterance in input_name['segments']:
         if verbose:
             print("\n")
             print(utterance)
-        ## write each word as a new interval
-        ## based on the whisper output
-        for word in utterance['words']:
-            if verbose:
-                print(word['start'], word['end'], word[tname])
 
-            interval = make_interval(word['start'], word['end'], word[tname])
+        if words:
+            ## write each word as a new interval
+            ## based on the whisper output
+            for word in utterance['words']:
+                if verbose:
+                    print(word['start'], word['end'], word[tname])
+
+                interval = make_interval(word['start'], word['end'], word[tname])
+                tier.addInterval(interval)
+        else:
+            interval = make_interval(utterance['start'], utterance['end'], utterance['text'])
             tier.addInterval(interval)
 
     ## add the tier to the
@@ -61,13 +63,15 @@ if __name__ == "__main__":
     parser = ArgumentParser()
     parser.add_argument("input", type = Path)
     parser.add_argument("output", type = Path)
-    parser.add_argument("--verbose", "-v", action = "store_true")
+    parser.add_argument("--words", "-w", action = "store_true", help = "Create word-level intervals instead of utterances (default: False)")
+    parser.add_argument("--verbose", "-v", action = "store_true", help = "Print transcription information (default: False)")
     args = parser.parse_args()
 
     ## check if the input is a single JSON file
     ## or a directory of JSON files
     if args.input.is_file():
-        tg_out = whisper2textgrid(args.input, args.verbose)
+        inp_json = get_input(args.input)
+        tg_out = whisper2textgrid(inp_json, args.words, args.verbose)
         tg_out.write(args.output.joinpath(args.input.stem + ".TextGrid"))
 
     ## if directory, iterate through JSON files
@@ -75,7 +79,8 @@ if __name__ == "__main__":
         inputs = list(args.input.glob("*.json"))
         for inp in inputs:
             print(f"Converting {inp.stem}")
-            tg_out = whisper2textgrid(inp, args.verbose)
+            inp_json = get_input(inp)
+            tg_out = whisper2textgrid(inp_json, args.words, args.verbose)
             tg_out.write(args.output.joinpath(inp.stem + ".TextGrid"))
     else:
         raise("Not a file or directory")
