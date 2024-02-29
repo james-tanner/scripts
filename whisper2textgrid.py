@@ -11,8 +11,7 @@ def get_input(fname):
 
 
 def get_text_name(input_name):
-    ## determine if whisper text label is
-    ## either 'text' or 'word'
+    ## determine if whisper text label is either 'text' or 'word'
     return "text" if "text" in input_name['segments'][0]['words'][0] else "word"
 
 
@@ -30,7 +29,6 @@ def get_unique_speakers(transcription):
 
 
 def convert_utterance(utterance, tier, text_name, words, verbose):
-
     if verbose:
         print("\n")
         print(utterance)
@@ -40,10 +38,12 @@ def convert_utterance(utterance, tier, text_name, words, verbose):
             if verbose:
                 print(word['start'], word['end'], word[text_name])
 
+            ## create word-level intervals
             interval = make_interval(word['start'], word['end'], word[text_name])
             tier.addInterval(interval)
 
     else:
+        ## create utterance-level intervals
         interval = make_interval(utterance['start'], utterance['end'], utterance['text'])
         tier.addInterval(interval)
 
@@ -61,16 +61,26 @@ def whisper2textgrid(input_name, words = False, verbose = False, multispeaker = 
     if multispeaker:
         speakers = get_unique_speakers(input_name)
 
+        ## get each speaker name and
+        ## write separate tiers for each
         for speaker in speakers:
             if verbose:
                 print(speaker)
             tier = IntervalTier(name = speaker)
+
             for utterance in input_name['segments']:
+
+                ## write intervals to the tier
+                ## corresponding to that speaker
                 if utterance['speaker'] == speaker:
                     tier = convert_utterance(utterance, tier, text_name = tname, words = words, verbose = verbose)
+
+            ## add tier to textgrid
             tg.append(tier)
 
     else:
+        ## make a single tier and write
+        ## all intervals to it
         tier = IntervalTier(name = "words")
         for utterance in input_name['segments']:
             tier = convert_utterance(utterance, tier, text_name = tname, words = words, verbose = verbose)
