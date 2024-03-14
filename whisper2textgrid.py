@@ -25,7 +25,14 @@ def make_interval(start, end, text):
 
 
 def get_unique_speakers(transcription):
-    return set([utt['speaker'] for utt in transcription['segments']])
+    speakers = []
+    for utt in transcription['segments']:
+        try:
+            speakers.append(utt['speaker'])
+        except KeyError:
+            utt['speaker'] = "unknown"
+            speakers.append(utt['speaker'])
+    return set(speakers)
 
 
 def convert_utterance(utterance, tier, text_name, words, verbose):
@@ -72,8 +79,12 @@ def whisper2textgrid(input_name, words = False, verbose = False, multispeaker = 
 
                 ## write intervals to the tier
                 ## corresponding to that speaker
-                if utterance['speaker'] == speaker:
-                    tier = convert_utterance(utterance, tier, text_name = tname, words = words, verbose = verbose)
+                try:
+                    if utterance['speaker'] == speaker:
+                        tier = convert_utterance(utterance, tier, text_name = tname, words = words, verbose = verbose)
+                except ValueError as e:
+                    print(f"Skipping malformed interval: {e}")
+                    continue
 
             ## add tier to textgrid
             tg.append(tier)
@@ -83,7 +94,11 @@ def whisper2textgrid(input_name, words = False, verbose = False, multispeaker = 
         ## all intervals to it
         tier = IntervalTier(name = "words")
         for utterance in input_name['segments']:
-            tier = convert_utterance(utterance, tier, text_name = tname, words = words, verbose = verbose)
+            try:
+                tier = convert_utterance(utterance, tier, text_name = tname, words = words, verbose = verbose)
+            except ValueError as e:
+                print(f"Skipping malformed interval: {e}")
+                continue
         tg.append(tier)
 
     return tg
