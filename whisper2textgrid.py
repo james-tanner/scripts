@@ -12,7 +12,11 @@ def get_input(fname):
 
 def get_text_name(input_name):
     ## determine if whisper text label is either 'text' or 'word'
-    return "text" if "text" in input_name['segments'][0]['words'][0] else "word"
+    try:
+        if input_name['segments'][0]['words'][0]:
+            return "word"
+    except KeyError:
+        return "text"
 
 
 def make_interval(start, end, text):
