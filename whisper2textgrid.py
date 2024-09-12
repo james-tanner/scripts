@@ -1,6 +1,7 @@
 import json
 
 from argparse import ArgumentParser
+from audiofile import duration
 from pathlib import Path
 from textgrid import TextGrid, IntervalTier, Interval
 
@@ -17,6 +18,11 @@ def get_text_name(input_name):
             return "word"
     except KeyError:
         return "text"
+
+
+def get_wav_dur(json_fpath):
+    wav_fpath = str(json_fpath).replace(".json", ".wav")
+    return duration(wav_fpath)
 
 
 def make_interval(start, end, text):
@@ -61,7 +67,7 @@ def convert_utterance(utterance, tier, text_name, words, verbose):
     return tier
 
 
-def whisper2textgrid(input_name, words = False, verbose = False, multispeaker = False):
+def whisper2textgrid(input_name, wav_duration, words = False, verbose = False, multispeaker = False):
 
     ## create a new empty TextGrid and interval tier
     tg = TextGrid()
@@ -77,7 +83,7 @@ def whisper2textgrid(input_name, words = False, verbose = False, multispeaker = 
         for speaker in speakers:
             if verbose:
                 print(speaker)
-            tier = IntervalTier(name = speaker)
+            tier = IntervalTier(name = speaker, minTime = 0, maxTime = wav_duration)
 
             for utterance in input_name['segments']:
 
@@ -96,7 +102,7 @@ def whisper2textgrid(input_name, words = False, verbose = False, multispeaker = 
     else:
         ## make a single tier and write
         ## all intervals to it
-        tier = IntervalTier(name = "words")
+        tier = IntervalTier(name = "words", minTime = 0, maxTime = wav_duration)
         for utterance in input_name['segments']:
             try:
                 tier = convert_utterance(utterance, tier, text_name = tname, words = words, verbose = verbose)
@@ -120,8 +126,9 @@ if __name__ == "__main__":
     ## check if the input is a single JSON file
     ## or a directory of JSON files
     if args.input.is_file():
+        wav_dur = get_wav_dur(args.input)
         inp_json = get_input(args.input)
-        tg_out = whisper2textgrid(inp_json, args.words, args.verbose, args.multispeaker)
+        tg_out = whisper2textgrid(inp_json, wav_dur, args.words, args.verbose, args.multispeaker)
         tg_out.write(args.output.joinpath(args.input.stem + ".TextGrid"))
 
     ## if directory, iterate through JSON files
@@ -129,8 +136,9 @@ if __name__ == "__main__":
         inputs = list(args.input.glob("*.json"))
         for inp in inputs:
             print(f"Converting {inp.stem}")
+            wav_dur = get_wav_dur(inp)
             inp_json = get_input(inp)
-            tg_out = whisper2textgrid(inp_json, args.words, args.verbose, args.multispeaker)
+            tg_out = whisper2textgrid(inp_json, wav_dur, args.words, args.verbose, args.multispeaker)
             tg_out.write(args.output.joinpath(inp.stem + ".TextGrid"))
     else:
         raise("Not a file or directory")
